@@ -5,6 +5,8 @@ My First Deep Neural Network from Scratch
 import numpy as np
 from Layer import Layer
 
+C = 1e-7
+
 class Activation:
     def sigmoid(x):
         return 1 / (1 - np.exp(-x))
@@ -14,12 +16,13 @@ class Activation:
 
 class Loss:
     def crossEntropy(y, y_hat):
-        return (-1/y.shape[1])*np.sum(y*np.log(y_hat) + (1-y)*np.log(1-y_hat))
+        m = y.shape[1]
+        x = (-1/m)*np.sum(y*np.log(y_hat + C) + (1-y)*np.log(1-y_hat + C), axis=1, keepdims=True)
+        return np.squeeze(x)
 
     def crossEntropy_derivative(y, a):
-        #return (-y/a) + (1-y)/(1-a)
-        return np.sum((-y/a) + (1-y)/(1-a), axis=1, keepdims=True).T
-
+        x = - np.divide(y, a) - np.divide(1-y, 1-a)
+        return x
 
 class NeuralNetwork:
     def __init__(self, learning_rate):
@@ -38,12 +41,11 @@ class NeuralNetwork:
             out = l.computeOutput(out)
 
         loss = self.computeLoss(out, labels)
-        print(f"Loss: {loss}")
+        print(f"Loss: {np.sum(loss)}")
         return out
 
     def calculateGradients(self, input, labels):
-        dA = Loss.crossEntropy_derivative(labels, input)
-        #print(f"dA : {dA.shape}")
+        dA = Loss.crossEntropy_derivative(labels, input).T
         dWs = []
         dBs = []
         for l in range(len(self.layers)-1, -1, -1):
@@ -62,21 +64,20 @@ class NeuralNetwork:
 
 
 if __name__ == "__main__":
-    inp_size = 5
+    inp_size = 10
     num_iterations = 100
-    learning_rate = 0.01
+    learning_rate = 0.1
 
     X = np.random.rand(inp_size, 10)
     Y = np.random.rand(10, 1)
 
-    nn = NeuralNetwork(0.01)
+    nn = NeuralNetwork(learning_rate)
     #self, input_size, hidden_units, activation
-    dense1 = nn.addLayer(Layer(inp_size, 6, None))
-    dense2 = nn.addLayer(Layer(6, 1, None))
+    dense1 = nn.addLayer(Layer(inp_size, 10, "sigmoid"))
+    dense2 = nn.addLayer(Layer(10, 1, "sigmoid"))
 
 
     for _ in range(num_iterations):
         out = nn.feedForward(X, Y)
         dW, dB = nn.calculateGradients(out, Y)
-
         nn.gradientDescent(dW, dB)
