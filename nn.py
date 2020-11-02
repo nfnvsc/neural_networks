@@ -44,7 +44,7 @@ class NeuralNetwork:
         cost = []
 
         for i in range(num_iterations):
-            out = self.feedForward(X)
+            out = self.feedForward(X_train)
             loss = self.computeLoss(out, Y_train)
 
             cost.append(loss)
@@ -52,7 +52,7 @@ class NeuralNetwork:
             if i % 100 == 0 and print_cost:
                 print(f"Cost after {i} iterations: {loss}")
 
-            dW, dB = self.backPropagation(out, Y)
+            dW, dB = self.backPropagation(out, Y_train)
 
             self.updateParameters(dW, dB)
         
@@ -94,7 +94,8 @@ if __name__ == "__main__":
     X = np.array(X1).T
     Y = np.array(Y1).T
 
-    print(Y)
+    print(X.shape)
+    print(Y.shape)
 
     nn = NeuralNetwork()
 
@@ -104,7 +105,7 @@ if __name__ == "__main__":
     #nn.addLayer(Dense(7, 5, "relu"))
     #nn.addLayer(Dense(5, 1, "sigmoid"))
 
-    cost = nn.fit(X, Y, num_iterations=3000, learning_rate=0.0075, print_cost=True)
+    cost = nn.fit(X, Y, num_iterations=3000, learning_rate=0.0575, print_cost=True)
     
     plt.plot(cost)
     plt.show()

@@ -19,6 +19,7 @@ class Dense(Layer):
     def forward(self, input):
         self.a_prev = input
         self.z_cached = np.dot(self.weights, input) + self.biases
+
         return self.activation.calculate(self.z_cached)
     
     def backward(self, dA):
