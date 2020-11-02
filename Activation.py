@@ -1,10 +1,9 @@
 import numpy as np
 
 from Function import Function
-C = 1e-7
 
 def sigmoid(x):
-    return 1 / (1 - np.exp(-x))
+    return 1 / (1 + np.exp(-x))
     
 def sigmoid_derivative(x):
     return sigmoid(x)*(1 - sigmoid(x))
@@ -17,6 +16,7 @@ def rectified_linear_derivative(x):
 
 class Activation(Function):
     def __init__(self, func):
+        self.func = func
         if func == "sigmoid":
             self._function = sigmoid
             self._derivative = sigmoid_derivative

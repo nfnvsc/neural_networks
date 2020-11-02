@@ -9,20 +9,21 @@ class Dense(Layer):
         self._random_initialization(lambd, input_size, neurons)
 
     def _random_initialization(self, lambd, input_size, neurons):
-        func = np.sqrt(lambd/input_size)
-
-        self.weights = np.random.rand(neurons, input_size) * func
+        #if self.activation.func == "sigmoid":
+        #    func = np.sqrt(lambd/neurons)
+        #    self.weights = np.random.rand(neurons, input_size) * func
+        #else:
+        self.weights = np.random.rand(neurons, input_size) * 0.01
         self.biases = np.zeros((neurons,1))
     
     def forward(self, input):
         self.a_prev = input
-
         self.z_cached = np.dot(self.weights, input) + self.biases
-        
         return self.activation.calculate(self.z_cached)
     
-    def backward(self, dA, m):
+    def backward(self, dA):
         dZ = dA * self.activation.derivative(self.z_cached)
+        m = self.a_prev.shape[1]
 
         dW = 1/m * np.dot(dZ, self.a_prev.T)
         dB = 1/m * np.sum(dZ, axis=1, keepdims=True)
