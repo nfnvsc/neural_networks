@@ -1,31 +1,29 @@
 import numpy as np
+import pickle
 
-from layers.Dense import Dense
-from Loss import Loss
+from functions.Loss import Loss
 
 class NeuralNetwork:
     def __init__(self):
         self.layers = []
         self.learning_rate = 0
-        self.loss = None
+        self.loss = None    
 
-    def addLayer(self, layer):
-        self.layers.append(layer)
-
-    def computeLoss(self, y, y_hat):
+    def _computeLoss(self, y, y_hat):
         return self.loss.calculate(y, y_hat)
     
-    def feedForward(self, features):
+    def _feedForward(self, features):
         out = features
         for layer in self.layers:
             out = layer.forward(out)
         return out
 
-    def backPropagation(self, input, labels):
+    def _backPropagation(self, input, labels):
         dWs = []
         dBs = []
-
-        dA = self.loss.derivative(labels, input)
+        Y = labels.reshape(input.shape)
+        dA = self.loss.derivative(Y, input)
+        
         for layer in reversed(self.layers):
             dW, dB, dA = layer.backward(dA)
             dWs.append(dW)
@@ -33,10 +31,13 @@ class NeuralNetwork:
 
         return dWs, dBs        
 
-    def updateParameters(self, dWs, dBs):
+    def _updateParameters(self, dWs, dBs):
         for i, layer in enumerate(reversed(self.layers)):
             layer.update(dWs[i], dBs[i], self.learning_rate)
-        
+
+    def addLayer(self, layer):
+        self.layers.append(layer)    
+
     def fit(self, X_train, Y_train, num_iterations=1000, learning_rate=0.0075, print_cost=False, loss_function="cross_entropy"):
         self.loss = Loss(loss_function)
         self.learning_rate = learning_rate
@@ -44,20 +45,36 @@ class NeuralNetwork:
         cost = []
 
         for i in range(num_iterations):
-            out = self.feedForward(X_train)
-            loss = self.computeLoss(out, Y_train)
+            out = self._feedForward(X_train)
+            loss = self._computeLoss(out, Y_train)
 
             cost.append(loss)
 
             if i % 100 == 0 and print_cost:
                 print(f"Cost after {i} iterations: {loss}")
 
-            dW, dB = self.backPropagation(out, Y_train)
+            dW, dB = self._backPropagation(out, Y_train)
 
-            self.updateParameters(dW, dB)
+            self._updateParameters(dW, dB)
         
         return cost
 
+    def predict(self, X):
+        return self._feedForward(X)
+
+    def load(self, file):
+        saved = pickle.load(open(file, "rb"))
+
+        for i, layer in enumerate(self.layers):
+            layer.load(saved[i][0], saved[i][1])
+
+    def save(self, file):
+        saved = []
+
+        for layer in self.layers:
+            saved.append(layer.save())
+
+        pickle.dump(saved, open(file, "wb"))
 
 
 if __name__ == "__main__":
@@ -66,6 +83,8 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     from PIL import Image, ImageOps
     from sklearn.utils import shuffle
+    
+    from layers.Dense import Dense
 
     X = []
     Y = []
@@ -104,8 +123,8 @@ if __name__ == "__main__":
     nn.addLayer(Dense(5, 1, "sigmoid"))
     #nn.addLayer(Dense(7, 5, "relu"))
     #nn.addLayer(Dense(5, 1, "sigmoid"))
-
-    cost = nn.fit(X, Y, num_iterations=3000, learning_rate=0.0575, print_cost=True)
-    
+    nn.load("test.pickle")
+    cost = nn.fit(X, Y, num_iterations=1000, learning_rate=0.0075, print_cost=True)
+    nn.save("test.pickle")
     plt.plot(cost)
     plt.show()

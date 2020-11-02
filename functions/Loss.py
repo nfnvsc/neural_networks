@@ -1,6 +1,6 @@
 import numpy as np
 
-from Function import Function
+from functions.Function import Function
 
 def cross_entropy(AL, Y):
     m = Y.shape[1]

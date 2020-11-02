@@ -1,6 +1,5 @@
 import numpy as np
 
-from Activation import Activation
 from layers.Layer import Layer
 
 class Dense(Layer):
@@ -26,9 +25,9 @@ class Dense(Layer):
         dZ = dA * self.activation.derivative(self.z_cached)
         m = self.a_prev.shape[1]
 
-        dW = 1/m * np.dot(dZ, self.a_prev.T)
-        dB = 1/m * np.sum(dZ, axis=1, keepdims=True)
+        dW = (1./m) * np.dot(dZ, self.a_prev.T)
+        db = (1./m) * np.sum(dZ, axis=1, keepdims=True)
 
         dA_prev = np.dot(self.weights.T, dZ)
 
-        return dW, dB, dA_prev
+        return dW, db, dA_prev

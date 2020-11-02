@@ -1,6 +1,6 @@
 import numpy as np
 
-from Function import Function
+from functions.Function import Function
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
