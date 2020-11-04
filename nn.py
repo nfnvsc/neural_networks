@@ -2,14 +2,13 @@ import numpy as np
 import pickle
 
 from functions.Loss import Loss
-from Optimizer import GradientDescent
+from Optimizer import GradientDescent, Adam
 
 class NeuralNetwork:
-    def __init__(self, optimizer):
+    def __init__(self):
         self.layers = []
-        self.learning_rate = 0
         self.loss = None    
-        self.optimizer = optimizer
+        self.optimizer = None
 
     def _feedForward(self, features):
         out = features
@@ -17,17 +16,13 @@ class NeuralNetwork:
             out = layer.forward(out)
         return out
 
-    def _updateParameters(self, dWs, dBs):
-        for i, layer in enumerate(reversed(self.layers)):
-            layer.update(dWs[i], dBs[i], self.learning_rate)
-
     def addLayer(self, layer):
         self.layers.append(layer)    
 
-    def fit(self, X_train, Y_train, num_iterations=1000, learning_rate=0.0075, print_cost=False, loss_function="cross_entropy"):
+    def fit(self, X_train, Y_train, optimizer, num_iterations=1000, print_cost=False, loss_function="cross_entropy"):
         self.loss = Loss(loss_function)
-        self.learning_rate = learning_rate
-        
+        self.optimizer = optimizer
+
         cost = []
 
         for i in range(num_iterations):
@@ -41,9 +36,7 @@ class NeuralNetwork:
             
             loss_deriv = self.loss.derivative(pred, Y_train)
 
-            dW, dB = self.optimizer.backward(loss_deriv, pred, Y_train, self.layers)
-
-            self._updateParameters(dW, dB)
+            self.optimizer.backward(loss_deriv, pred, Y_train, self.layers, i+1)
         
         return cost
 
@@ -98,22 +91,25 @@ if __name__ == "__main__":
     Y = np.array(Y).reshape(1,-1)
 
     X1, Y1 = shuffle(X, Y.T)
-    X = np.array(X1).T
-    Y = np.array(Y1).T
+    X_train = np.array(X1).T
+    Y_train = np.array(Y1).T
 
     print(X.shape)
     print(Y.shape)
 
-    nn = NeuralNetwork(GradientDescent())
+    #hyperparameters
+    learning_rate = 0.01
 
-    nn.addLayer(Dense(X.shape[0], 7, "relu"))
+    nn = NeuralNetwork()
+
+    nn.addLayer(Dense(X_train.shape[0], 7, "relu"))
     nn.addLayer(Dense(7, 5, "relu"))
     nn.addLayer(Dense(5, 1, "sigmoid"))
     #nn.addLayer(Dense(7, 5, "relu"))
     #nn.addLayer(Dense(5, 1, "sigmoid"))
     
-    nn.load("test.pickle")
-    cost = nn.fit(X, Y, num_iterations=1000, learning_rate=0.0075, print_cost=True)
+    opt = Adam(learning_rate)
+    cost = nn.fit(X_train, Y_train, opt, num_iterations=1000, print_cost=True)
     nn.save("test.pickle")
     plt.plot(cost)
     plt.show()

@@ -8,17 +8,23 @@ class Layer:
         self.activation = Activation(activation)
         self.z_cached = []
         self.a_prev = []
+        self.w = [] #momentum
+        self.b = [] #momentum
+        self.vdw = [] #momentum
+        self.vdb = [] #momentum
+        self.sdw = [] #rmsprop
+        self.sdb = [] #rmsprop
 
     def forward(self, input):
         raise NotImplementedError
 
     def update(self, dW, dB, learning_rate):
-        self.weights -= learning_rate*dW
-        self.biases -= learning_rate*dB
+        self.w -= learning_rate*dW
+        self.b -= learning_rate*dB
 
     def load(self, weights, biases):
-        self.weights = weights
-        self.biases = biases
+        self.w = weights
+        self.b = biases
 
     def save(self):
-        return self.weights, self.biases
+        return self.w, self.b

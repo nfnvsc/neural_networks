@@ -12,11 +12,15 @@ class Dense(Layer):
         #    func = np.sqrt(lambd/neurons)
         #    self.weights = np.random.rand(neurons, input_size) * func
         #else:
-        self.weights = np.random.rand(neurons, input_size) * 0.01
-        self.biases = np.zeros((neurons,1))
+        self.w = np.random.rand(neurons, input_size) * 0.01
+        self.b = np.zeros((neurons,1))
+        self.vdw = np.zeros((neurons, input_size))
+        self.vdb = np.zeros((neurons, 1))
+        self.sdw = np.zeros((neurons, input_size))
+        self.sdb = np.zeros((neurons, 1))
     
     def forward(self, input):
         self.a_prev = input
-        self.z_cached = np.dot(self.weights, input) + self.biases
+        self.z_cached = np.dot(self.w, input) + self.b
 
         return self.activation.calculate(self.z_cached)
