@@ -12,9 +12,6 @@ class Layer:
     def forward(self, input):
         raise NotImplementedError
 
-    def backward(self, dA, m):
-        raise NotImplementedError
-
     def update(self, dW, dB, learning_rate):
         self.weights -= learning_rate*dW
         self.biases -= learning_rate*dB

@@ -20,14 +20,3 @@ class Dense(Layer):
         self.z_cached = np.dot(self.weights, input) + self.biases
 
         return self.activation.calculate(self.z_cached)
-    
-    def backward(self, dA):
-        dZ = dA * self.activation.derivative(self.z_cached)
-        m = self.a_prev.shape[1]
-
-        dW = (1./m) * np.dot(dZ, self.a_prev.T)
-        db = (1./m) * np.sum(dZ, axis=1, keepdims=True)
-
-        dA_prev = np.dot(self.weights.T, dZ)
-
-        return dW, db, dA_prev

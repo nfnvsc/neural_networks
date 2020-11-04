@@ -7,7 +7,7 @@ def cross_entropy(AL, Y):
     cost = -(1/m)*np.sum(Y*np.log(AL) + (1-Y)*np.log(1-AL))
     return np.squeeze(cost)
 
-def cross_entropy_derivative(y, a):
+def cross_entropy_derivative(a, y):
     return -(np.divide(y, a) - np.divide(1-y, 1-a))
 
 class Loss(Function):

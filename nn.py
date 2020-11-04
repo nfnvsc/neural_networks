@@ -2,34 +2,20 @@ import numpy as np
 import pickle
 
 from functions.Loss import Loss
+from Optimizer import GradientDescent
 
 class NeuralNetwork:
-    def __init__(self):
+    def __init__(self, optimizer):
         self.layers = []
         self.learning_rate = 0
         self.loss = None    
+        self.optimizer = optimizer
 
-    def _computeLoss(self, y, y_hat):
-        return self.loss.calculate(y, y_hat)
-    
     def _feedForward(self, features):
         out = features
         for layer in self.layers:
             out = layer.forward(out)
         return out
-
-    def _backPropagation(self, input, labels):
-        dWs = []
-        dBs = []
-        Y = labels.reshape(input.shape)
-        dA = self.loss.derivative(Y, input)
-        
-        for layer in reversed(self.layers):
-            dW, dB, dA = layer.backward(dA)
-            dWs.append(dW)
-            dBs.append(dB)
-
-        return dWs, dBs        
 
     def _updateParameters(self, dWs, dBs):
         for i, layer in enumerate(reversed(self.layers)):
@@ -45,15 +31,17 @@ class NeuralNetwork:
         cost = []
 
         for i in range(num_iterations):
-            out = self._feedForward(X_train)
-            loss = self._computeLoss(out, Y_train)
+            pred = self._feedForward(X_train)
+            loss = self.loss.calculate(pred, Y_train)
 
             cost.append(loss)
 
             if i % 100 == 0 and print_cost:
                 print(f"Cost after {i} iterations: {loss}")
+            
+            loss_deriv = self.loss.derivative(pred, Y_train)
 
-            dW, dB = self._backPropagation(out, Y_train)
+            dW, dB = self.optimizer.backward(loss_deriv, pred, Y_train, self.layers)
 
             self._updateParameters(dW, dB)
         
@@ -116,13 +104,14 @@ if __name__ == "__main__":
     print(X.shape)
     print(Y.shape)
 
-    nn = NeuralNetwork()
+    nn = NeuralNetwork(GradientDescent())
 
     nn.addLayer(Dense(X.shape[0], 7, "relu"))
     nn.addLayer(Dense(7, 5, "relu"))
     nn.addLayer(Dense(5, 1, "sigmoid"))
     #nn.addLayer(Dense(7, 5, "relu"))
     #nn.addLayer(Dense(5, 1, "sigmoid"))
+    
     nn.load("test.pickle")
     cost = nn.fit(X, Y, num_iterations=1000, learning_rate=0.0075, print_cost=True)
     nn.save("test.pickle")
