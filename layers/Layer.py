@@ -8,8 +8,8 @@ class Layer:
         self.activation = Activation(activation)
         self.z_cached = []
         self.a_prev = []
-        self.w = [] #momentum
-        self.b = [] #momentum
+        self.w = [] #weights
+        self.b = [] #biases
         self.vdw = [] #momentum
         self.vdb = [] #momentum
         self.sdw = [] #rmsprop

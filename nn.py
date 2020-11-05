@@ -101,15 +101,14 @@ if __name__ == "__main__":
     learning_rate = 0.01
 
     nn = NeuralNetwork()
-
-    nn.addLayer(Dense(X_train.shape[0], 7, "relu"))
+    #0.6923628560046783
+    nn.addLayer(Dense(X_train.shape[0], 20, "relu"))
+    nn.addLayer(Dense(20, 7, "relu"))
     nn.addLayer(Dense(7, 5, "relu"))
     nn.addLayer(Dense(5, 1, "sigmoid"))
-    #nn.addLayer(Dense(7, 5, "relu"))
-    #nn.addLayer(Dense(5, 1, "sigmoid"))
     
     opt = Adam(learning_rate)
-    cost = nn.fit(X_train, Y_train, opt, num_iterations=1000, print_cost=True)
+    cost = nn.fit(X_train, Y_train, opt, num_iterations=10000, print_cost=True)
     nn.save("test.pickle")
     plt.plot(cost)
     plt.show()
