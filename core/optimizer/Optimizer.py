@@ -6,7 +6,7 @@ class Optimizer(ABC):
     Interface for optimizers
     """
     @abstractmethod
-    def backward(self, loss_deriv, inp, labels, layers: list, num_iter):
+    def backward(self, loss_deriv, inp, layers: list):
         pass
 
     @abstractmethod
@@ -18,7 +18,7 @@ class GradientDescent(Optimizer):
     def __init__(self, learning_rate):
         self.lr = learning_rate
 
-    def backward(self, loss_deriv, inp, labels, layers: list, num_iter=0):
+    def backward(self, loss_deriv, inp, layers: list):
         dW = []
         dB = []
         da = loss_deriv
@@ -51,8 +51,9 @@ class Adam(Optimizer):
         self.b1 = beta1
         self.b2 = beta2
         self.e = epsilon
+        self._num_iter = 1
 
-    def backward(self, loss_deriv, inp, labels, layers: list, num_iter):
+    def backward(self, loss_deriv, inp, layers: list):
         dW = []
         dB = []
 
@@ -75,17 +76,19 @@ class Adam(Optimizer):
             layer.sdb = np.multiply(self.b2, layer.sdb) + np.multiply(1 - self.b2, np.power(db, 2))
 
             #bias normalization
-            vdw_corrected = np.divide(layer.vdw, 1 - np.power(self.b1, num_iter))
-            vdb_corrected = np.divide(layer.vdb, 1 - np.power(self.b1, num_iter))
+            vdw_corrected = np.divide(layer.vdw, 1 - np.power(self.b1, self._num_iter))
+            vdb_corrected = np.divide(layer.vdb, 1 - np.power(self.b1, self._num_iter))
 
-            sdw_corrected = np.divide(layer.sdw, 1 - np.power(self.b2, num_iter))
-            sdb_corrected = np.divide(layer.sdb, 1 - np.power(self.b2, num_iter))
+            sdw_corrected = np.divide(layer.sdw, 1 - np.power(self.b2, self._num_iter))
+            sdb_corrected = np.divide(layer.sdb, 1 - np.power(self.b2, self._num_iter))
 
             dw = np.divide(vdw_corrected, np.sqrt(sdw_corrected) + self.e)
             db = np.divide(vdb_corrected, np.sqrt(sdb_corrected) + self.e)
 
             dW.append(dw)
             dB.append(db)
+
+        self._num_iter += 1
 
 
         self.update_parameters(layers, dW, dB)

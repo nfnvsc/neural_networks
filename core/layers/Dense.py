@@ -1,6 +1,6 @@
 import numpy as np
 
-from layers.Layer import Layer
+from core.layers.Layer import Layer
 
 class Dense(Layer):
     def __init__(self, input_size, neurons, activation, lambd = 1):

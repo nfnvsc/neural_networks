@@ -1,6 +1,6 @@
 import numpy as np
 
-from functions.Function import Function
+from core.functions.Function import Function
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
@@ -21,6 +21,9 @@ class Activation(Function):
             self._function = sigmoid
             self._derivative = sigmoid_derivative
 
-        if func == "relu":
+        elif func == "relu":
             self._function = rectified_linear
             self._derivative = rectified_linear_derivative
+
+        else:
+            raise TypeError(f"{func} not defined.")

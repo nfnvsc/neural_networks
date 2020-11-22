@@ -1,6 +1,6 @@
 import numpy as np
 
-from functions.Function import Function
+from core.functions.Function import Function
 
 def cross_entropy(AL, Y):
     m = Y.shape[1]
@@ -15,6 +15,9 @@ class Loss(Function):
         if func == "cross_entropy":
             self._function = cross_entropy
             self._derivative = cross_entropy_derivative
+
+        else:
+            raise TypeError(f"{func} not defined.")
     
     def calculate(self, y, a):
         return self._function(y, a)

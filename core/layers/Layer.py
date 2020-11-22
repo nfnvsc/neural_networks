@@ -1,5 +1,4 @@
-import numpy as np
-from functions.Activation import Activation
+from core.functions.Activation import Activation
 
 class Layer:
     """ Main Layer Class
